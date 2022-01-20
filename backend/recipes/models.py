@@ -56,9 +56,11 @@ class Recipe(models.Model):
     )
     cooking_time = models.SmallIntegerField(
         verbose_name="Время приготовления в минутах",
-        validators=MinValueValidator(
-            1,
-            message="Минимальное время приготовления - одна минута"
+        validators=(
+            MinValueValidator(
+                1,
+                message="Минимальное время приготовления - одна минута"
+            ),
         )
     )
 
@@ -83,4 +85,19 @@ class Favorite(models.Model):
 
 
 class ShoppingList(models.Model):
-    pass
+    user = models.ForeignKey(
+        User,
+        related_name="recipes_in_list",
+        on_delete=models.CASCADE
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name="buyers",
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "recipe"],
+                                    name="unique_shopping_list")
+        ]
