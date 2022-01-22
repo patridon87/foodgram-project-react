@@ -54,7 +54,7 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name="Текст рецепта"
     )
-    cooking_time = models.SmallIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовления в минутах",
         validators=(
             MinValueValidator(
@@ -101,3 +101,19 @@ class ShoppingList(models.Model):
             models.UniqueConstraint(fields=["user", "recipe"],
                                     name="unique_shopping_list")
         ]
+
+class IngredientInRecipe:
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name="Количество ингредиентов",
+        validators=(
+            MinValueValidator(1, "Минимальное количество ингредиентов - 1"),
+        )
+    )

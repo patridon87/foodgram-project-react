@@ -21,6 +21,12 @@ class UserRegistrationSerializer(serializers.Serializer):
             raise serializers.ValidationError("Имя пользователя me запрещено")
         return data
 
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
 
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
@@ -36,3 +42,8 @@ class UserSerializer(serializers.ModelSerializer):
             'is_subscribed'
         )
 
+    def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        if user == obj:
+            return False
+        return user.is_authenticated and obj.following.filter(user=user)
