@@ -1,25 +1,26 @@
 from rest_framework import serializers
 
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from users.models import User, Follow
+from recipes.models import Tag, Ingredient
 
 
-class UserRegistrationSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField(required=True)
-    first_name = serializers.CharField(required=True)
-    last_name = serializers.CharField(required=True)
-    password = serializers.CharField(required=True)
+class UserRegistrationSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
         fields = (
-            'email', 'username', 'first_name', 'last_name', 'password'
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
         )
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
-    def validate(self, data):
-        if data["username"] == "me":
-            raise serializers.ValidationError("Имя пользователя me запрещено")
-        return data
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
@@ -28,7 +29,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -46,4 +47,24 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user == obj:
             return False
-        return user.is_authenticated and obj.following.filter(user=user)
+        return user.is_authenticated and obj.following.filter(user=user).exists()
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = (
+            'id', 'name', 'color', 'slug'
+        )
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id', 'name', 'measurement_unit'
+        )
+
+
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    pass
