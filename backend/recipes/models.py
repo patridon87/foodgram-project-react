@@ -84,15 +84,15 @@ class Favorite(models.Model):
         ]
 
 
-class ShoppingList(models.Model):
+class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
-        related_name="recipes_in_list",
+        related_name="buyers",
         on_delete=models.CASCADE
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name="buyers",
+        related_name="in_shopping_cart",
         on_delete=models.CASCADE
     )
 
@@ -101,6 +101,7 @@ class ShoppingList(models.Model):
             models.UniqueConstraint(fields=["user", "recipe"],
                                     name="unique_shopping_list")
         ]
+
 
 class IngredientInRecipe:
     recipe = models.ForeignKey(
