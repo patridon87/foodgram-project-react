@@ -38,7 +38,8 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name="Ингредиенты",
-        related_name="recipes"
+        related_name="recipes",
+        through="IngredientInRecipe"
     )
     tags = models.ManyToManyField(
         Tag,
@@ -53,6 +54,10 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         verbose_name="Текст рецепта"
+    )
+    image = models.ImageField(
+        verbose_name="Картинка",
+        upload_to='media/recipes/images/'
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовления в минутах",
@@ -103,14 +108,15 @@ class ShoppingCart(models.Model):
         ]
 
 
-class IngredientInRecipe:
+class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='ingredient_to_recipe'
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name="Количество ингредиентов",
