@@ -1,9 +1,10 @@
 from django.shortcuts import render
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
 
-from .serializers import CustomUserSerializer, TagSerializer, IngredientSerializer, RecipeCreateSerializer, RecipeSerializer
+from .serializers import CustomUserSerializer, TagSerializer, IngredientSerializer, RecipeSerializer
 from .pagination import FoodgramPagination
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from users.models import User, Follow
@@ -33,9 +34,10 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrReadOnly,)
+    serializer_class = RecipeSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_serializer_class(self):
-        if self.request.method == "GET":
-            return RecipeSerializer
-        return RecipeCreateSerializer
+    # def get_serializer_class(self):
+    #     if self.request.method in SAFE_METHODS:
+    #         return RecipeSerializer
+    #     return RecipeCreateSerializer
