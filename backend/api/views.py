@@ -1,18 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
+from djoser.views import UserViewSet
 
-from .serializers import CustomUserSerializer, TagSerializer, IngredientSerializer, RecipeSerializer
+
+from .serializers import CustomUserSerializer, TagSerializer, IngredientSerializer, RecipeSerializer, FavoriteRecipeSerializer
 from .pagination import FoodgramPagination
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from users.models import User, Follow
-from recipes.models import Tag, Ingredient, Recipe
+from recipes.models import Tag, Ingredient, Recipe, Favorite
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    pass
+class CustomUserViewSet(UserViewSet):
+    pagination_class = FoodgramPagination
+
+    @action(methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
+    def subscribe(self, request, pk):
+        pass
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -37,7 +43,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    # def get_serializer_class(self):
-    #     if self.request.method in SAFE_METHODS:
-    #         return RecipeSerializer
-    #     return RecipeCreateSerializer
+    @action(detail=True, methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
+    def favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = request.user
+        serializer = FavoriteRecipeSerializer(recipe)
+        if request.method == 'POST':
+            if Favorite.objects.filter(user=user, recipe=recipe).exists():
+                return Response({"errors": "Рецепт уже добавлен в избранное"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            Favorite.objects.create(user=user, recipe=recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        Favorite.objects.filter(user=user, recipe=recipe).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

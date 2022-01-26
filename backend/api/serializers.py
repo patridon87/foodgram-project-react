@@ -69,6 +69,13 @@ class IngredientSerializer(serializers.ModelSerializer):
         )
 
 
+class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
@@ -118,6 +125,33 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
             recipe.ingredients.add(current_ingredient)
         return recipe
+
+    def update(self, instance, validated_data):
+        if 'tags' in self.initial_data:
+            instance.tags.clear()
+            tags = self.initial_data.get('tags')
+            for tag in tags:
+                instance.tags.add(tag)
+        if 'ingredients' in self.initial_data:
+            instance.ingredients.clear()
+            IngredientInRecipe.objects.filter(recipe=instance).delete()
+            ingredients = self.initial_data.get('ingredients')
+            for ingredient in ingredients:
+                current_ingredient = get_object_or_404(Ingredient,
+                                                       pk=ingredient['id'])
+
+                IngredientInRecipe.objects.create(
+                    ingredient=current_ingredient, recipe=instance,
+                    amount=ingredient["amount"]
+                )
+                instance.ingredients.add(current_ingredient)
+
+        super().update(instance, validated_data)
+
+        return instance
+
+
+
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user
