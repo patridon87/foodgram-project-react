@@ -13,6 +13,9 @@ class User(AbstractUser):
         'email', 'first_name', 'last_name', 'password'
     ]
 
+    class Meta:
+        ordering = ['-id']
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -27,6 +30,7 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(fields=["user", "author"],
                                     name="unique_follow")
