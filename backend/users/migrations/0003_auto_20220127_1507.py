@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_auto_20220127_1451'),
+        ("users", "0002_auto_20220127_1451"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='follow',
-            options={'ordering': ['-id']},
+            name="follow",
+            options={"ordering": ["-id"]},
         ),
     ]

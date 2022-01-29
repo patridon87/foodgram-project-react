@@ -4,12 +4,7 @@ from .models import Tag
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'name',
-        'color',
-        'slug'
-    )
+    list_display = ("pk", "name", "color", "slug")
     empty_value_display = "-пусто-"
 
 
