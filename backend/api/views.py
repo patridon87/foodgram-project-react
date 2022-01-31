@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipes.models import (
     Favorite,
@@ -11,10 +12,12 @@ from recipes.models import (
 )
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from users.models import Follow, User
 
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import FoodgramPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
@@ -65,7 +68,9 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         queryset = Follow.objects.filter(user=request.user)
         page = self.paginate_queryset(queryset)
-        serializer = SubscribeAuthorSerializer(page, many=True)
+        serializer = SubscribeAuthorSerializer(
+            page, many=True, context={"request": request}
+        )
         return self.get_paginated_response(serializer.data)
 
 
@@ -83,12 +88,17 @@ class IngredientViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ["get"]
     pagination_class = None
+    filter_backends = (IngredientFilter,)
+    search_fields = ("^name",)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
+    pagination_class = FoodgramPagination
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = RecipeFilter
     http_method_names = ["get", "post", "patch", "delete"]
 
     @action(

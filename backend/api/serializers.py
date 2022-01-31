@@ -68,9 +68,10 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source="author.username")
     first_name = serializers.ReadOnlyField(source="author.first_name")
     last_name = serializers.ReadOnlyField(source="author.last_name")
-    recipes = FavoriteRecipeSerializer(
-        source="author.recipes", many=True, read_only=True
-    )
+    # recipes = FavoriteRecipeSerializer(
+    #     source="author.recipes", many=True, read_only=True
+    # )
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
 
@@ -86,6 +87,16 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
             "recipes",
             "recipes_count",
         )
+
+    def get_recipes(self, obj):
+        request = self.context.get("request")
+        limit = request.GET.get("recipes_limit", None)
+        if limit is None:
+            recipes = Recipe.objects.filter(author=obj.author)
+        else:
+            recipes = Recipe.objects.filter(author=obj.author)[: int(limit)]
+        serializer = FavoriteRecipeSerializer(recipes, many=True, read_only=True).data
+        return serializer
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()
