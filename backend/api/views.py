@@ -1,34 +1,21 @@
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    IngredientInRecipe,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
-from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
+
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingCart, Tag)
 from users.models import Follow, User
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import FoodgramPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from .serializers import (
-    CustomUserSerializer,
-    FavoriteRecipeSerializer,
-    IngredientSerializer,
-    RecipeSerializer,
-    ShoppingCartSerializer,
-    SubscribeAuthorSerializer,
-    TagSerializer,
-)
+from .serializers import (FavoriteRecipeSerializer, IngredientSerializer,
+                          RecipeSerializer, ShoppingCartSerializer,
+                          SubscribeAuthorSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -56,14 +43,17 @@ class CustomUserViewSet(UserViewSet):
                 )
 
             subscribtion = Follow.objects.create(user=user, author=author)
-            serializer = SubscribeAuthorSerializer(subscribtion)
+            serializer = SubscribeAuthorSerializer(
+                subscribtion, context={"request": request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         Follow.objects.filter(user=user, author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+        detail=False,
+        methods=["get"],
+        permission_classes=[permissions.IsAuthenticated]
     )
     def subscriptions(self, request):
         queryset = Follow.objects.filter(user=request.user)
@@ -138,7 +128,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     {"errors": "Рецепт уже добавлен в список покупок"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            recipe_in_cart = ShoppingCart.objects.create(user=user, recipe=recipe)
+            recipe_in_cart = ShoppingCart.objects.create(
+                user=user, recipe=recipe
+            )
             serializer = ShoppingCartSerializer(recipe_in_cart)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -146,7 +138,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+        detail=False,
+        methods=["get"],
+        permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
         shopping_list = {}
@@ -168,9 +162,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 }
 
         response = HttpResponse(content_type="text/plain")
-        response["Content_Disposition"] = "attachment; filename=shopping_list.txt"
+        response["Content_Disposition"] = (
+            "attachment; filename=shopping_list.txt"
+        )
 
         for key, value in shopping_list.items():
-            line = f'{key} {value["amount"]} {value["measurement_unit"]}'
+            line = f'{key} {value["amount"]} {value["measurement_unit"]}\n'
             response.write(line)
         return response

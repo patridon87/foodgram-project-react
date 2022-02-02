@@ -1,11 +1,14 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from users.models import User
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=200, unique=True, verbose_name="Имя тэга")
-    color = models.CharField(max_length=7, unique=True, verbose_name="Цвет тэга")
+    name = models.CharField(
+        max_length=200, unique=True, verbose_name="Имя тэга")
+    color = models.CharField(
+        max_length=7, unique=True, verbose_name="Цвет тэга")
     slug = models.SlugField(max_length=200, unique=True)
 
     def __str__(self):
@@ -17,7 +20,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=200, verbose_name="Название ингредиента")
+    name = models.CharField(
+        max_length=200, verbose_name="Название ингредиента")
     measurement_unit = models.CharField(
         max_length=200, verbose_name="Единицы измерения"
     )
@@ -41,9 +45,13 @@ class Recipe(models.Model):
         related_name="recipes",
         through="IngredientInRecipe",
     )
-    tags = models.ManyToManyField(Tag, verbose_name="Тэги", related_name="recipes")
+    tags = models.ManyToManyField(
+        Tag, verbose_name="Тэги", related_name="recipes")
     author = models.ForeignKey(
-        User, verbose_name="Автор", related_name="recipes", on_delete=models.CASCADE
+        User,
+        verbose_name="Автор",
+        related_name="recipes",
+        on_delete=models.CASCADE
     )
     text = models.TextField(verbose_name="Текст рецепта")
     image = models.ImageField(
@@ -80,7 +88,8 @@ class Favorite(models.Model):
         verbose_name = "Избранные рецепты"
         verbose_name_plural = "Избранные рецепты"
         constraints = [
-            models.UniqueConstraint(fields=["user", "recipe"], name="unique_favorite")
+            models.UniqueConstraint(
+                fields=["user", "recipe"], name="unique_favorite")
         ]
 
 
@@ -109,9 +118,16 @@ class IngredientInRecipe(models.Model):
         Recipe, on_delete=models.CASCADE, related_name="ingredient_to_recipe"
     )
     ingredient = models.ForeignKey(
-        Ingredient, on_delete=models.CASCADE, related_name="ingredient_to_recipe"
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name="ingredient_to_recipe"
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name="Количество ингредиентов",
-        validators=(MinValueValidator(1, "Минимальное количество ингредиентов - 1"),),
+        validators=(
+            MinValueValidator(1, "Минимальное количество ингредиентов - 1"),),
     )
+
+    class Meta:
+        verbose_name = "Ингредиент в рецепте"
+        verbose_name_plural = "Ингредиенты в рецепте"

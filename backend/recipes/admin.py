@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Tag, Recipe, Ingredient, ShoppingCart, Favorite
+from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -11,7 +12,8 @@ class TagAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ("pk", "name", "author")
     ordering = ("pk",)
-    list_filter = ("name", "author__username", "tags__name")
+    search_fields = ("name", "author__username", )
+    list_filter = ("tags__name")
     empty_value_display = "-пусто-"
     readonly_fields = ("recipe_count",)
 
@@ -21,5 +23,34 @@ class RecipeAdmin(admin.ModelAdmin):
     recipe_count.short_description = 'Количество добавлений в избранное'
 
 
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ("pk", "name", "measurement_unit")
+    ordering = ("pk",)
+    search_fields = ("name",)
+    empty_value_display = "-пусто-"
+
+
+class IngredientInRecipeAdmin(admin.ModelAdmin):
+    list_display = ("pk", "ingredient", "recipe", "amount")
+    ordering = ("pk",)
+    empty_value_display = "-пусто-"
+
+
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ("pk", "user", "recipe",)
+    ordering = ("pk",)
+    empty_value_display = "-пусто-"
+
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ("pk", "user", "recipe",)
+    ordering = ("pk",)
+    empty_value_display = "-пусто-"
+
+
+admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(IngredientInRecipe, IngredientInRecipeAdmin)
+admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)

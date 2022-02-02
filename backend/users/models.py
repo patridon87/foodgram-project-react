@@ -17,13 +17,16 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
-    user = models.ForeignKey(User, related_name="follower", on_delete=models.CASCADE)
-    author = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, related_name="follower", on_delete=models.CASCADE)
+    author = models.ForeignKey(
+        User, related_name="following", on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["-id"]
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
         constraints = [
-            models.UniqueConstraint(fields=["user", "author"], name="unique_follow")
+            models.UniqueConstraint(
+                fields=["user", "author"], name="unique_follow")
         ]
