@@ -14,9 +14,7 @@ services:
       - .env
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: patridon87/foodgram_backend:v1
     restart: always
     volumes:
       - static_value:/app/static-files/
@@ -31,9 +29,7 @@ services:
       - .env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: patridon87/foodgram_frontend:v1
     volumes:
       - ../frontend/:/app/result_build/
 

@@ -13,7 +13,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ("pk", "name", "author")
     ordering = ("pk",)
     search_fields = ("name", "author__username", )
-    list_filter = ("tags__name")
+    list_filter = ("tags__name",)
     empty_value_display = "-пусто-"
     readonly_fields = ("recipe_count",)
 
