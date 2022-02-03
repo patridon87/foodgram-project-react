@@ -13,9 +13,9 @@ from users.models import Follow, User
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import FoodgramPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from .serializers import (FavoriteRecipeSerializer, IngredientSerializer,
-                          RecipeSerializer, ShoppingCartSerializer,
-                          SubscribeAuthorSerializer, TagSerializer)
+from .serializers import (MiniRecipeSerializer, IngredientSerializer,
+                          RecipeSerializer, SubscribeAuthorSerializer,
+                          TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -42,9 +42,10 @@ class CustomUserViewSet(UserViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            subscribtion = Follow.objects.create(user=user, author=author)
+            Follow.objects.create(user=user, author=author)
             serializer = SubscribeAuthorSerializer(
-                subscribtion, context={"request": request})
+                author,
+                context={"request": request, "author": author, "user": user})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         Follow.objects.filter(user=user, author=author).delete()
@@ -56,7 +57,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def subscriptions(self, request):
-        queryset = Follow.objects.filter(user=request.user)
+        queryset = User.objects.filter(following__user=request.user)
         page = self.paginate_queryset(queryset)
         serializer = SubscribeAuthorSerializer(
             page, many=True, context={"request": request}
@@ -64,19 +65,17 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    http_method_names = ["get"]
     pagination_class = None
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    http_method_names = ["get"]
     pagination_class = None
     filter_backends = (IngredientFilter,)
     search_fields = ("^name",)
@@ -99,7 +98,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
-        serializer = FavoriteRecipeSerializer(recipe)
+        serializer = MiniRecipeSerializer(recipe)
         if request.method == "POST":
             if Favorite.objects.filter(user=user, recipe=recipe).exists():
                 return Response(
@@ -128,10 +127,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     {"errors": "Рецепт уже добавлен в список покупок"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            recipe_in_cart = ShoppingCart.objects.create(
+            ShoppingCart.objects.create(
                 user=user, recipe=recipe
             )
-            serializer = ShoppingCartSerializer(recipe_in_cart)
+            serializer = MiniRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         ShoppingCart.objects.filter(user=user, recipe=recipe).delete()

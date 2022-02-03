@@ -11,12 +11,12 @@ class Tag(models.Model):
         max_length=7, unique=True, verbose_name="Цвет тэга")
     slug = models.SlugField(max_length=200, unique=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "Тэг"
         verbose_name_plural = "Тэги"
+
+    def __str__(self):
+        return self.name
 
 
 class Ingredient(models.Model):
@@ -26,12 +26,12 @@ class Ingredient(models.Model):
         max_length=200, verbose_name="Единицы измерения"
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -66,13 +66,13 @@ class Recipe(models.Model):
         ),
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ["-id"]
         verbose_name = "Рецепт"
         verbose_name_plural = "Рецепты"
+
+    def __str__(self):
+        return self.name
 
 
 class Favorite(models.Model):

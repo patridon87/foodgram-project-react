@@ -1,6 +1,7 @@
-from django_filters import FilterSet
-from django_filters.filters import (AllValuesFilter, AllValuesMultipleFilter,
-                                    BooleanFilter)
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework.filters import (
+    AllValuesFilter, AllValuesMultipleFilter, BooleanFilter
+)
 from django_filters.widgets import BooleanWidget
 from rest_framework.filters import SearchFilter
 
@@ -8,12 +9,8 @@ from recipes.models import Recipe
 
 
 class RecipeFilter(FilterSet):
-    is_favorited = BooleanFilter(
-        method="filter_is_favorited", widget=BooleanWidget
-    )
-    is_in_shopping_cart = BooleanFilter(
-        method="filter_is_in_shopping_cart", widget=BooleanWidget
-    )
+    is_favorited = BooleanFilter(method="filter_is_favorited")
+    is_in_shopping_cart = BooleanFilter(method="filter_is_in_shopping_cart")
     tags = AllValuesMultipleFilter(field_name="tags__slug")
     author = AllValuesFilter(field_name="author__id")
 
