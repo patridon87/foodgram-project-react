@@ -12,7 +12,10 @@ class TagAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ("pk", "name", "author")
     ordering = ("pk",)
-    search_fields = ("name", "author__username", )
+    search_fields = (
+        "name",
+        "author__username",
+    )
     list_filter = ("tags__name",)
     empty_value_display = "-пусто-"
     readonly_fields = ("recipe_count",)
@@ -20,7 +23,7 @@ class RecipeAdmin(admin.ModelAdmin):
     def recipe_count(self, obj):
         return Favorite.objects.filter(recipe=obj).count()
 
-    recipe_count.short_description = 'Количество добавлений в избранное'
+    recipe_count.short_description = "Количество добавлений в избранное"
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -37,13 +40,21 @@ class IngredientInRecipeAdmin(admin.ModelAdmin):
 
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ("pk", "user", "recipe",)
+    list_display = (
+        "pk",
+        "user",
+        "recipe",
+    )
     ordering = ("pk",)
     empty_value_display = "-пусто-"
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ("pk", "user", "recipe",)
+    list_display = (
+        "pk",
+        "user",
+        "recipe",
+    )
     ordering = ("pk",)
     empty_value_display = "-пусто-"
 

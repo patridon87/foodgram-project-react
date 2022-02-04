@@ -12,7 +12,11 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ("pk", "user", "author",)
+    list_display = (
+        "pk",
+        "user",
+        "author",
+    )
     ordering = ("pk",)
     empty_value_display = "-пусто-"
 

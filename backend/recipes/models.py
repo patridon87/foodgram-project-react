@@ -6,10 +6,14 @@ from users.models import User
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200, unique=True, verbose_name="Имя тэга")
+        max_length=200, unique=True, verbose_name="Имя тэга"
+    )
     color = models.CharField(
-        max_length=7, unique=True, verbose_name="Цвет тэга")
-    slug = models.SlugField(max_length=200, unique=True)
+        max_length=7, unique=True, verbose_name="Цвет тэга"
+    )
+    slug = models.SlugField(
+        max_length=200, unique=True
+    )
 
     class Meta:
         verbose_name = "Тэг"
@@ -21,7 +25,8 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=200, verbose_name="Название ингредиента")
+        max_length=200, verbose_name="Название ингредиента"
+    )
     measurement_unit = models.CharField(
         max_length=200, verbose_name="Единицы измерения"
     )
@@ -46,7 +51,8 @@ class Recipe(models.Model):
         through="IngredientInRecipe",
     )
     tags = models.ManyToManyField(
-        Tag, verbose_name="Тэги", related_name="recipes")
+        Tag, verbose_name="Тэги", related_name="recipes"
+    )
     author = models.ForeignKey(
         User,
         verbose_name="Автор",
@@ -89,7 +95,8 @@ class Favorite(models.Model):
         verbose_name_plural = "Избранные рецепты"
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "recipe"], name="unique_favorite")
+                fields=["user", "recipe"], name="unique_favorite"
+            )
         ]
 
 
@@ -125,7 +132,8 @@ class IngredientInRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name="Количество ингредиентов",
         validators=(
-            MinValueValidator(1, "Минимальное количество ингредиентов - 1"),),
+            MinValueValidator(1, "Минимальное количество ингредиентов - 1"),
+        ),
     )
 
     class Meta:

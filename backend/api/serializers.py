@@ -32,14 +32,13 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed"
-        )
+        fields = ("email",
+                  "id",
+                  "username",
+                  "first_name",
+                  "last_name",
+                  "is_subscribed"
+                  )
 
     def get_is_subscribed(self, obj):
         user = self.context["request"].user
@@ -68,11 +67,6 @@ class MiniRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscribeAuthorSerializer(serializers.ModelSerializer):
-    # email = serializers.ReadOnlyField(source="author.email")
-    # id = serializers.ReadOnlyField(source="author.id")
-    # username = serializers.ReadOnlyField(source="author.username")
-    # first_name = serializers.ReadOnlyField(source="author.first_name")
-    # last_name = serializers.ReadOnlyField(source="author.last_name")
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
@@ -89,11 +83,13 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
             "recipes",
             "recipes_count",
         )
-        extra_kwargs = {"email": {"read_only": True},
-                        "id": {"read_only": True},
-                        "username": {"read_only": True},
-                        "first_name": {"read_only": True},
-                        "lastname": {"read_only": True}}
+        extra_kwargs = {
+            "email": {"read_only": True},
+            "id": {"read_only": True},
+            "username": {"read_only": True},
+            "first_name": {"read_only": True},
+            "lastname": {"read_only": True},
+        }
 
     def get_recipes(self, obj):
         request = self.context.get("request")
@@ -101,13 +97,10 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
         if limit is None:
             recipes = Recipe.objects.filter(author=obj)
         else:
-            recipes = Recipe.objects.filter(
-                author=obj)[: int(limit)]
-        return MiniRecipeSerializer(
-            recipes, many=True, read_only=True).data
+            recipes = Recipe.objects.filter(author=obj)[: int(limit)]
+        return MiniRecipeSerializer(recipes, many=True, read_only=True).data
 
     def get_recipes_count(self, obj):
-        author = self.context.get("author")
         return Recipe.objects.filter(author=obj).count()
 
     def get_is_subscribed(self, obj):

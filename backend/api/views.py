@@ -13,7 +13,7 @@ from users.models import Follow, User
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import FoodgramPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from .serializers import (MiniRecipeSerializer, IngredientSerializer,
+from .serializers import (IngredientSerializer, MiniRecipeSerializer,
                           RecipeSerializer, SubscribeAuthorSerializer,
                           TagSerializer)
 
@@ -44,8 +44,11 @@ class CustomUserViewSet(UserViewSet):
 
             Follow.objects.create(user=user, author=author)
             serializer = SubscribeAuthorSerializer(
-                author,
-                context={"request": request, "author": author, "user": user})
+                author, context={
+                    "request": request,
+                    "user": user
+                }
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         Follow.objects.filter(user=user, author=author).delete()
@@ -127,9 +130,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     {"errors": "Рецепт уже добавлен в список покупок"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            ShoppingCart.objects.create(
-                user=user, recipe=recipe
-            )
+            ShoppingCart.objects.create(user=user, recipe=recipe)
             serializer = MiniRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -137,8 +138,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=False,
-        methods=["get"],
+        detail=False, methods=["get"],
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
