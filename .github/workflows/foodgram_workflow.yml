@@ -61,6 +61,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            sudo docker pull patridon87/foodgram_frontend
+            sudo docker pull patridon87/foodgram_backend
             sudo docker-compose stop
             sudo docker-compose rm backend
             touch .env
