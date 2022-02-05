@@ -39,6 +39,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend
+          file: ./backend/Dockerfile
           push: true
           tags: patridon87/foodgram_backend:latest
       - name: Push frontend to Docker Hub
