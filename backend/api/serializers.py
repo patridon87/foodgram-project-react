@@ -119,13 +119,6 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         model = IngredientInRecipe
         fields = ("id", "name", "measurement_unit", "amount")
 
-    def validate(self, data):
-        amount = data["amount"]
-        if isinstance(amount, int):
-            return data
-        raise serializers.ValidationError("Количество ингредиента должно быть"
-                                          " числом")
-
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
@@ -151,6 +144,13 @@ class RecipeSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
+
+    def validate(self, data):
+        amount = data["amount"]
+        if isinstance(amount, int):
+            return data
+        raise serializers.ValidationError("Количество ингредиента должно быть"
+                                          " числом")
 
     def create(self, validated_data):
         author = self.context["request"].user
