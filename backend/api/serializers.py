@@ -146,6 +146,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        validated_data.pop("ingredient_to_recipe")
         author = self.context["request"].user
         tags = self.initial_data.get("tags")
         ingredients = self.initial_data.get("ingredients")
