@@ -60,6 +60,3 @@ docker-compose exec backend python manage.py import ---path "/data/ingredients.j
 
 51.250.4.83
 
-логин для админки - admin
-
-пароль для админки 123AdminQwerty
